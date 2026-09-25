@@ -42,6 +42,11 @@ class PolyBotRailway:
             interval_id = f"{now.strftime('%H')}:{(now.minute // 15) * 15:02d}"
             minute = now.minute % 15
             
+            # Проверка: если цена не подгрузилась, ждем и просим снова
+            if btc_price is None or btc_price == 0:
+                time.sleep(3)
+                continue
+
             # Новая 15-минутка
             if self.current_interval != interval_id:
                 self.current_interval = interval_id
@@ -51,7 +56,7 @@ class PolyBotRailway:
                 wr = (self.wins / total * 100) if total > 0 else 0
                 self.log(f"--- Новая 15-минутка [{interval_id}] | Старт BTC: ${btc_price:,.1f} | Баланс: ${self.balance:.2f} (WR: {wr:.0f}%) ---")
 
-            if btc_price and self.start_btc_price:
+            if self.start_btc_price is not None:
                 impulse = btc_price - self.start_btc_price
                 
                 # Сигнал на 12-14 минутах
@@ -80,4 +85,4 @@ class PolyBotRailway:
 if __name__ == "__main__":
     bot = PolyBotRailway(15.0)
     bot.run()
-  
+    
